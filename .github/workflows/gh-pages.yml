@@ -6,6 +6,10 @@ on:
       - main
   pull_request:
 
+env:
+  # Update the language picker in theme/index.hbs to link new languages.
+  LANGUAGES: zh-TW
+
 jobs:
   deploy:
     runs-on: ubuntu-24.04
@@ -35,6 +39,17 @@ jobs:
         run: |
           mdbook build
           mv book/html/* book/
+
+      - name: Build all translations
+        run: |
+          for po_lang in ${{ env.LANGUAGES }}; do
+            echo "::group::Building $po_lang translation"
+            MDBOOK_BOOK__LANGUAGE=$po_lang \
+            MDBOOK_OUTPUT__HTML__SITE_URL=/linuxboot-book/$po_lang/ \
+            mdbook build -d book/$po_lang
+            mv book/$po_lang/html/* book/$po_lang/
+            echo "::endgroup::"
+          done
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
