@@ -3,12 +3,12 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Talks and news coverage - LinuxBoot</title>
+        <title>工具評估 - LinuxBoot</title>
 
 
         <!-- Custom HTML head -->
         <script>
-            const mdbookPath = "talks-news.md";
+            const mdbookPath = "tools-evaluation.md";
             const mdbookPathToRoot = "";
         </script>
 
@@ -163,62 +163,42 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="coverage"><a class="header" href="#coverage">Coverage</a></h1>
-<h2 id="talks"><a class="header" href="#talks">Talks</a></h2>
-<div class="table-wrapper"><table><thead><tr><th>Date</th><th>Presenter</th><th>Title</th></tr></thead><tbody>
-<tr><td>12/27/2016</td><td>Trammell Hudson</td><td><a href="https://trmm.net/Heads_33c3">Bootstraping a slightly more secure laptop</a></td></tr>
-<tr><td>10/27/2017</td><td>Ron Minnich</td><td>Replace your exploit-ridden firmware with a Linux kernel (<a href="https://www.youtube.com/watch?v=iffTJ1vPCSo">YouTube</a>, <a href="https://schd.ws/hosted_files/osseu17/84/Replace%20UEFI%20with%20Linux.pdf">slides</a>)</td></tr>
-<tr><td>12/29/2017</td><td>Trammell Hudson</td><td><a href="https://trmm.net/LinuxBoot_34c3">Bringing Linux back to the server BIOS with LinuxBoot</a></td></tr>
-<tr><td>09/13/2018</td><td>Andrea Barberio, David Hendricks</td><td><a href="https://www.osfc.io/2018/talks/open-source-firmware-facebook/">Open Source Firmware @ Facebook</a></td></tr>
-<tr><td>10/02/2018</td><td>Andrea Barberio, David Hendricks</td><td><a href="https://2018ocpregionalsummit.sched.com/event/F8ax/turning-linux-engineers-into-firmware-engineers">Turning Linux Engineers into Firmware Engineers</a> (<a href="https://insomniac.slackware.it/static/2018_ocp_regional_summit_linuxboot_at_facebook.pdf">slides</a>, <a href="https://www.youtube.com/watch?v=i84df1z6mdI">YouTube</a>)</td></tr>
-<tr><td>06/15/2024</td><td>Marta Lewandowska</td><td><a href="https://pretalx.com/devconf-cz-2024/talk/W3AVCT/">No more boot loader: Please use the kernel instead</a></td></tr>
+                        <h1 id="工具評估"><a class="header" href="#工具評估">工具評估</a></h1>
+<p>Three general questions guide all software projects:</p>
+<ul>
+<li>what exists already? (implementations, tools and build systems)</li>
+<li>what needs development? (UIs and such)</li>
+<li>what is a good environment? (build + runtime)</li>
+</ul>
+<p>Not only do we want to answer those questions. We also keep track of the options and decision process in this book in order for readers to make sense.</p>
+<p>There are many existing tools already that we can leverage to implement the idea of using Linux to boot into an operating system.</p>
+<h2 id="root-filesystem"><a class="header" href="#root-filesystem">Root filesystem</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>tool</th><th>language</th><th>license</th><th>usage</th></tr></thead><tbody>
+<tr><td><a href="https://busybox.net/">BusyBox</a></td><td>C</td><td>GPLv2</td><td>Heads</td></tr>
+<tr><td><a href="http://landley.net/toybox">toybox</a></td><td>C</td><td>0BSD</td><td>Android</td></tr>
+<tr><td><a href="https://www.gnu.org/software/coreutils/">GNU coreutils</a></td><td>C</td><td>GPLv3</td><td>not for LinuxBoot</td></tr>
+<tr><td><a href="https://u-root.org">u-root</a></td><td>Go</td><td>BSD 3-Clause</td><td>ByteDance, Google et al</td></tr>
+<tr><td><a href="http://uutils.github.io/">uutils/coreutils</a></td><td>Rust</td><td>MIT</td><td>not for LinuxBoot</td></tr>
 </tbody></table>
 </div>
-<ul>
-<li><a href="https://www.usenix.org/conference/lisa18/presentation/barberio">Make Your System Firmware Faster, More Flexible and Reliable with LinuxBoot</a>
-by <a href="https://github.com/dhendrix">David Hendricks</a> and
-<a href="https://github.com/insomniacslk">Andrea Barberio</a> at
-<a href="https://www.usenix.org/conference/lisa18">LISA 2018</a>
-(<a href="https://insomniac.slackware.it/static/2018_lisa_linuxboot_at_facebook.pdf">slides</a>)
-(2018-10-31)</li>
-<li><a href="https://www.youtube.com/watch?v=xfqKm190dbU">Open Source Firmware - A love story</a>
-by <a href="https://cybersecurity.9elements.com">Philipp Deppenwiese</a>
-at <a href="https://events.ccc.de/congress/2018">35c3</a>
-(<a href="https://cdn.media.ccc.de/congress/2018/slides-h264-hd/35c3-9778-deu-eng-Open_Source_Firmware_hd-slides.mp4">slides</a>)
-(2018-12-27)</li>
-<li><a href="https://fosdem.org/2019/schedule/event/open_source_firmware_at_facebook/">Open Source Firmware at Facebook</a>
-by <a href="https://github.com/dhendrix">David Hendricks</a>
-and <a href="https://github.com/insomniacslk">Andrea Barberio</a>
-at <a href="https://fosdem.org/2019/">FOSDEM 2019</a>
-(<a href="https://video.fosdem.org/2019/K.4.401/open_source_firmware_at_facebook.mp4">video</a>)
-(<a href="https://insomniac.slackware.it/static/2019_fosdem_linuxboot_at_facebook.pdf">slides</a>)
-(2019-02-03)</li>
-<li><a href="https://www.osfc.io/2022/talks/kexec-evolutions-for-linuxboot/">Kexec Evolutions for LinuxBoot</a>
-by David Hu at OSFC 2021</li>
-<li><a href="https://pretalx.com/devconf-cz-2024/talk/W3AVCT/">No more boot loader: Please use the kernel instead</a>
-at 2024 DevConf</li>
-</ul>
-<h2 id="news"><a class="header" href="#news">News</a></h2>
-<div class="table-wrapper"><table><thead><tr><th>Date</th><th>Website</th><th>Title</th></tr></thead><tbody>
-<tr><td>01/25/2018</td><td>Linux Foundation</td><td><a href="https://www.linuxfoundation.org/blog/system-startup-gets-a-boost-with-new-linuxboot-project/">System Statup gets a Boost with new LinuxBoot project</a></td></tr>
-<tr><td>02/15/2018</td><td>Linux Journal</td><td><a href="https://www.linuxjournal.com/content/foss-project-spotlight-linuxboot/">Linux Journal: FOSS Project Spotlight: LinuxBoot</a></td></tr>
-<tr><td>03/08/2018</td><td>LWN</td><td><a href="https://lwn.net/Articles/748586/">LWN.net: LinuxBoot: Linux as firmware</a></td></tr>
-<tr><td>06/21/2018</td><td>Phoronix</td><td><a href="https://www.phoronix.com/news/Equus-WHITEBOX-OPEN">Equus WHITEBOX OPEN: A Line Of Coreboot/LinuxBoot-Ready Xeon Scalable Servers</a></td></tr>
-<tr><td>02/06/2019</td><td>Phoronix</td><td><a href="https://www.phoronix.com/news/LinuxBoot-2019">At Just Over One Year Old, LinuxBoot Continues Making Inroads At Facebook &amp; Elsewhere</a></td></tr>
-<tr><td>03/14/2019</td><td>Facebook</td><td><a href="https://code.fb.com/data-center-engineering/f16-minipack/">Facebook's LinuxBoot-powered F-16 high-performance fabric network</a></td></tr>
-<tr><td>03/10/2023</td><td>Phoronix</td><td><a href="https://www.phoronix.com/news/Lenovo-LinuxBoot-ByteDance">Lenovo Begins Supporting LinuxBoot Firmware With ByteDance</a></td></tr>
-<tr><td>07/08/2024</td><td>LWN</td><td><a href="https://lwn.net/Articles/979789">Giving bootloaders the boot with nmbl</a></td></tr>
+<h2 id="kexec-implementations"><a class="header" href="#kexec-implementations">kexec implementations</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>tool</th><th>language</th><th>license</th><th>usage</th></tr></thead><tbody>
+<tr><td><a href="https://git.kernel.org/pub/scm/utils/kernel/kexec/kexec-tools.git">kexec-tools</a> (<a href="https://github.com/horms/kexec-tools">GitHub mirror</a>)</td><td>C</td><td>GPLv2</td><td>Heads, Petitboot</td></tr>
+<tr><td><a href="https://systemd.io/">systemd</a> (wrapper)</td><td>C</td><td>LGPL-2.1+</td><td>systemd on UEFI</td></tr>
+<tr><td><a href="https://github.com/kexecboot/kexecboot">kexecboot</a></td><td>C</td><td>GPLv2</td><td>?</td></tr>
+<tr><td>u-root (CLI+mod)</td><td>Go</td><td>BSD 3-Clause</td><td>Google et al</td></tr>
+<tr><td><a href="https://github.com/im-0/kexlinux">kexlinux</a></td><td>Rust</td><td>LGPL-3.0+</td><td>?</td></tr>
 </tbody></table>
 </div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="use-cases.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="components.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="components.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="u-root.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -228,11 +208,11 @@ at 2024 DevConf</li>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="use-cases.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="components.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="components.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="u-root.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

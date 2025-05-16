@@ -3,47 +3,47 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>LinuxBoot Components - LinuxBoot</title>
+        <title>被測試的設備 - LinuxBoot</title>
 
 
         <!-- Custom HTML head -->
         <script>
-            const mdbookPath = "components.md";
-            const mdbookPathToRoot = "";
+            const mdbookPath = "utilities/dut.md";
+            const mdbookPathToRoot = "../";
         </script>
 
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="favicon.svg">
-        <link rel="shortcut icon" href="favicon.png">
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
-        <link rel="stylesheet" href="css/print.css" media="print">
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="fonts/fonts.css">
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="highlight-css" href="highlight.css">
-        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
-        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="theme/css/language-picker.css">
+        <link rel="stylesheet" href="../theme/css/language-picker.css">
 
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "";
+            const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc.js"></script>
+        <script src="../toc.js"></script>
     </head>
     <body>
     <div id="body-container">
@@ -96,7 +96,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -131,7 +131,7 @@
                     <h1 class="menu-title">LinuxBoot</h1>
 
                     <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
                         <a href="https://github.com/linuxboot/book" title="Git repository" aria-label="Git repository">
@@ -163,70 +163,62 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="linuxboot-components"><a class="header" href="#linuxboot-components">LinuxBoot Components</a></h2>
-<p><img src="./images/LinuxBoot-components.svg" alt="image" /></p>
-<p>LinuxBoot consists of the following components:</p>
-<ol>
-<li>BIOS</li>
-<li>Linux kernel</li>
-<li>u-root -&gt; initramfs</li>
-</ol>
-<h4 id="bios"><a class="header" href="#bios">BIOS</a></h4>
-<p>This does not have to be a specific BIOS; currently LinuxBoot supports UEFI
-and <a href="https://coreboot.org/">coreboot</a>.</p>
-<h4 id="linux-kernel"><a class="header" href="#linux-kernel">Linux kernel</a></h4>
-<p>LinuxBoot is not intended to be a runtime production kernel; rather, it
-is meant to replace specific UEFI functionality using Linux kernel capabilities
-and then boot the actual production kernel on the machine. Kernel
-configuration files specific to LinuxBoot provide the needed Linux kernel
-capabilities without bloating the size of the BIOS with unnecessary drivers.</p>
-<p>These config files disable options that are not needed in the LinuxBoot
-kernel and add some patches that are needed.</p>
-<h4 id="initial-ram-filesystem--initramfs"><a class="header" href="#initial-ram-filesystem--initramfs">Initial RAM filesystem  (initramfs)</a></h4>
-<p>When Linux boots it needs a root file system that provides boot and startup
-utilities. LinuxBoot uses <a href="./glossary.html">u-root</a> to create an
-initramfs for this purpose.</p>
-<h4 id="what-is-an-initramfs"><a class="header" href="#what-is-an-initramfs">What is an initramfs?</a></h4>
-<p>The initramfs is a root file system that is embedded within the firmware
-image itself. It is intended to be placed in a flash device along with the
-Linux kernel as part of the firmware image for LinuxBoot. The initramfs is
-essentially a set of directories bundled into a single cpio archive.</p>
-<p>At boot time, the boot loader or firmware (for example, coreboot) loads
-the bzImage and initramfs into memory and starts the kernel. The kernel
-checks for the presence of the initramfs and, if found, unpacks it, mounts
-it as <code>/</code> and runs <code>/init</code>.</p>
-<p>There are many types of initramfs, in this topic we focus on u-root.
-u-root is a Go user-space (a set of programs and libraries written in Go that
-are used to interact with the kernel). It contains a toolset of standard
-Linux applications and commands.</p>
-<p>u-root can create an initramfs in two different modes:</p>
-<ul>
-<li>source mode, which contains:
-<ul>
-<li>Go toolchain binaries</li>
-<li>A simple shell</li>
-<li>Go source for tools to be compiled on the fly by the shell</li>
-</ul>
-</li>
-<li>Busybox (bb) mode: This is one busybox-like binary comprising all the
-requested utilities.</li>
-</ul>
-<p>The initramfs provided by u-root implements the toolchain needed to securely
-boot the machine from the network, perform identity verification, communicate
-with different internal boot-related components, and kexec the next kernel.</p>
-<p>u-root is an open source project hosted on GitHub. Within the u-root
-repository, we have executable commands in <code>cmds</code> and the packages containing
-libraries and implementations in <code>pkg</code>.</p>
+                        <h1 id="dut-a-simple-device-under-test-utility"><a class="header" href="#dut-a-simple-device-under-test-utility">DUT, a simple Device Under Test utility.</a></h1>
+<p>Points of contact: <a href="https://github.com/rminnich">Ron Minnich</a></p>
+<p>DUT is a simple Device Under Test program that gives you control of a node. It is intended to make very fast startup and control easy.</p>
+<p>DUT is one program implementing three operations. The first, tester, is run on a test control system, such as your desktop; the second, called device, is run on the device; the third, called ssh and also run on the device, starts an ssh server assuming one is present.</p>
+<p>DUT is intended to be very limited, with more sophisticated operations, should they be needed, being done over SSH.</p>
+<p>DUT is found at github.com:linuxboot/dut.</p>
+<p>This chapter describes how we build and use DUT.</p>
+<h2 id="components"><a class="header" href="#components">Components</a></h2>
+<p>DUT is intended to be built into a u-root image. First one must fetch it:</p>
+<pre><code>go get github.com/linuxboot/dut
+# ignore the warning message.
+</code></pre>
+<p>DUT source tree is structured such that a program called uinit is produced. This is convenient for u-root usage.</p>
+<p>Building it into a u-root image is easy:</p>
+<pre><code>go run $(GOPATH)/src/github.com/u-root/u-root -build=bb minimal github.com/linuxboot/dut/uinit
+</code></pre>
+<p>I almost always add an sshd to u-root; it's just too handy. U-root sshd does not support passwords, so you have to supply the public key:</p>
+<pre><code>go run $(GOPATH)/src/github.com/u-root/u-root -build=bb -files key.pub minimal  github.com/linuxboot/dut/uinit   github.com/u-root/u-root/xcmds/sshd
+</code></pre>
+<h3 id="dut-on-the-device"><a class="header" href="#dut-on-the-device">DUT on the device</a></h3>
+<p>On boot, the standard init program will find dut, and run it. The standard mode on a device is device mode, and dut will bring up the ethernet, currently using 192.168.0.2, and assuming the tester is 192.168.0.1 (this should be fixed ...). It will then attempt to connect to a uinit running in 'tester' mode on 192.168.0.1. Once connected, it functions as a server and waits for requests.</p>
+<h3 id="dut-on-the-controller"><a class="header" href="#dut-on-the-controller">DUT on the controller</a></h3>
+<p>Running on the controller is easy:</p>
+<pre><code>uinit -m tester
+</code></pre>
+<p>On the controller, the program waits for a connection and then starts issuing commands to the device. The controller has the option of calling the following RPC functions:</p>
+<pre><code>RPCWelcome - return a welcome message
+RPCExit - exit the testing mode
+RPCReboot - reboot the system
+RPCKexec - kexec a kernel
+RPCSsh - start the sshd
+</code></pre>
+<p>Each of these RPCs takes arguments and returns a result, with Welcome being the most fun:</p>
+<pre><code>______________
+&lt; welcome to DUT &gt;
+  --------------
+         \   ^__^
+          \  (oo)\_______
+             (__)\       )\/\
+                 ||----w |
+                 ||     ||
+</code></pre>
+<p>The current tester mode performs an RPC sequence I use for DXE cleaning, namely, a Welcome, followed by a Reboot, followed by a Welcome. This sequence verifies that I can get network going from power on, do a reboot, and reconnect after a reboot. It's been good for finding out if a particular DXE can be removed.</p>
+<p>Once the second Welcome has happened, if an sshd is installed, it will have been started, and you can do additional commands.</p>
+<h1 id="future-work"><a class="header" href="#future-work">Future work</a></h1>
+<p>Obviously, much more can be done. But this is a useful foundation on which to build DUT environments.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="talks-news.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../utilities/cpu.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="tools-evaluation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../implementation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -236,11 +228,11 @@ libraries and implementations in <code>pkg</code>.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="talks-news.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../utilities/cpu.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="tools-evaluation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../implementation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
@@ -255,18 +247,18 @@ libraries and implementations in <code>pkg</code>.</p>
         </script>
 
 
-        <script src="elasticlunr.min.js"></script>
-        <script src="mark.min.js"></script>
-        <script src="searcher.js"></script>
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
 
-        <script src="clipboard.min.js"></script>
-        <script src="highlight.js"></script>
-        <script src="book.js"></script>
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
-        <script src="mermaid.min.js"></script>
-        <script src="mermaid-init.js"></script>
-        <script src="theme/js/language-picker.js"></script>
+        <script src="../mermaid.min.js"></script>
+        <script src="../mermaid-init.js"></script>
+        <script src="../theme/js/language-picker.js"></script>
 
 
     </div>

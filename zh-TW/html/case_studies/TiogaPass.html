@@ -3,12 +3,12 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Google study - LinuxBoot</title>
+        <title>OCP TiogaPass 的案例研究 - LinuxBoot</title>
 
 
         <!-- Custom HTML head -->
         <script>
-            const mdbookPath = "case_studies/Google_study.md";
+            const mdbookPath = "case_studies/TiogaPass.md";
             const mdbookPathToRoot = "../";
         </script>
 
@@ -163,146 +163,118 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="the-linuxboot-project-at-google"><a class="header" href="#the-linuxboot-project-at-google">The LinuxBoot project at Google</a></h1>
-<p>Google runs workloads across a number of clusters each with up to tens of
-thousands of machines. Firmware runs on these machines when they first start
-up. Google is pushing the state-of-the-art in many places including firmware.
-The discussion here about Google's implementation of LinuxBoot is limited to
-replacing specific UEFI <a href="../glossary.html">firmware</a>
-functionality with a Linux kernel and runtime. Over the years this project
-has grown to include various initiatives with the overarching goal of moving
-from obscure, complex firmware to simpler, open source firmware.</p>
-<h2 id="team"><a class="header" href="#team">Team</a></h2>
-<p>There have been a number of contributors to the Google LinuxBoot project
-including:</p>
+                        <h1 id="ocp-tiogapass-case-study"><a class="header" href="#ocp-tiogapass-case-study">OCP TiogaPass Case Study</a></h1>
+<p>Points of contact: <a href="https://github.com/jonzhang-fb">Jonathan Zhang</a>, <a href="https://github.com/insomniacslk">Andrea Barberio</a>, <a href="https://github.com/dhendrix">David Hendricks</a>, <a href="https://github.com/agangidi53">Adi</a>, <a href="https://github.com/morganjangwiwynn">Morgan Jang</a>, <a href="https://github.com/johnnylinwiwynn">Johnny Lin</a></p>
+<p>This case study describes information for firmware development community to use <a href="https://www.opencompute.org/">OCP</a> platform TiogaPass, made by <a href="http://www.wiwynn.com/english">Wiwynn Corporation</a>.</p>
+<p>It contains following sections:</p>
 <ul>
-<li>Ron Minnich (technical lead)</li>
-<li>Gan-shun Lim</li>
-<li>Ryan O'Leary</li>
-<li>Prachi Laud</li>
-<li>Chris Koch</li>
-<li>Xuan Chen</li>
-<li>Andrew Sun</li>
-</ul>
-<p>Ryan O'Leary is one of the Open Compute Platform Foundation
-<a href="https://www.opencompute.org/projects/open-system-firmware">Open System Firmware project</a>
-volunteer leads and Ron Minnich is the Open Compute Platform Foundation
-Incubation Committee Representative.</p>
-<h2 id="goal"><a class="header" href="#goal">Goal</a></h2>
-<p>The primary goal of Google's LinuxBoot is to modernize the firmware by
-simplifying it to technologies engineers understand and trust.
-In UEFI systems, LinuxBoot consists of a "full stack" solution
-of stripped-down UEFI firmware, a Linux kernel, and an initramfs with
-tools written in Go. Although these components all make up one bundle
-stored in ROM, there are three parts: the closed-source EFI firmware,
-a Linux kernel, and <a href="../u-root.html">u-root</a>. The Linux kernel is
-an unmodified kernel.  The user-space initramfs image with Go tools
-for system booting is available as u-root. Due to this modularity,
-LinuxBoot can be used with a variety of systems. In many cases,
-for example, the same kernel and initramfs have been used, without
-recompilation, on both AMD and Intel x86 boards. The UEFI on
-these boards is always specific to the board, however.</p>
-<h2 id="converting-a-uefi-firmware-image-to-use-linuxboot"><a class="header" href="#converting-a-uefi-firmware-image-to-use-linuxboot">Converting a UEFI firmware image to use LinuxBoot</a></h2>
-<p>The conversion to LinuxBoot starts with generic UEFI. A UEFI computer
-boots in four main phases. The security phase (SEC) and the Pre-EFI
-Initialization Stage (PEI) are responsible for low-level operations
-to prepare the hardware and are usually specific to the hardware
-they are implemented for. After these two stages, the Driver Execution
-Environment (DXE) loads various drivers, and then the Boot Device Select
-(BDS) phase begins.</p>
-<p>It is not possible to modify the SEC and PEI stages, as their
-components are tightly coupled to the chips on the board; even
-small changes to the chips require new SEC and PEI stages.
-LinuxBoot starts during the DXE stage, resulting in most of the drivers
-(and their associated attack surface) not being loaded.
-Instead, a Linux kernel is loaded as if it were a driver.
-By loading during the DXE, LinuxBoot runs after the first two stages
-of the UEFI, but takes over after that point, replacing the
-UEFI drivers. It therefore completely replaces a large portion
-of the boot process.</p>
-<h2 id="phases-of-the-project"><a class="header" href="#phases-of-the-project">Phases of the project</a></h2>
-<p>Google's LinuxBoot project is focused on moving UEFI boot functionality
-into the kernel and user-space. That is, converting UEFI firmware
-to run LinuxBoot. The project has taken the standard UEFI boot process
-and converted it to LinuxBoot for production environments.
-The steps to reach this goal are described below.</p>
-<p>Step 1. Reduce or replace UEFI components</p>
-<p>UEFI contains proprietary, closed-source, vendor-supplied firmware
-drivers and firmware. LinuxBoot replaces many Driver Execution
-Environment (DXE) modules used by UEFI and other firmware,
-particularly the network stack and file system modules, with
-Linux applications.</p>
-<p>The following diagram shows the phases of the UEFI boot process.
-The items in <span style="color:red">red</span> are components
-that are either reduced or eliminated with LinuxBoot.
-The <span style="color:blue">dark blue</span> items on the left
-cannot be changed.</p>
-<img src="../images/Case-study-step1.svg" width=600px>
-<p>In the real FLASH part, the SEC and PEI are actually only 10% of total,
-so we reduce the size of those boxes in this and following diagrams.</p>
-<img src="../images/Case-study-step1a.svg" width=600px>
-<p>Another part of the conversion process was to modify the UEFI boot
-process to boot a LinuxBoot image as shown below.</p>
-<img src="../images/Case-study-step1b.svg" width=600px>
-<p>Step 2. Delete or replace as many proprietary DXEs as required to make
-step 3 work. In most cases, none need to be removed.</p>
-<img src="../images/Case-study-step2.svg" width=600px>
-<p>Step 3. Replace the UEFI shell with a Linux kernel + u-root</p>
-<img src="../images/Case-study-step3.svg" width=600px>
-<p>When Linux boots it needs a root file system with utilities.
-LinuxBoot provides a file system based on u-root standard
-utilities written in Go.</p>
-<p>Step 4. Through trial and error, continue to remove DXEs until you
-can't remove anymore.</p>
-<p>The DXEs are delivered as binary blobs. There are three ways
-to handle them:</p>
-<ol>
-<li>The most desirable is to remove them and let Linux drivers take
-over what they did. This works well for USB, network, disk,
-and other drivers, as well as network protocols and file
-systems. In fact we have resolved many system reliability
-and performance issues just by removing DXEs!</li>
-<li>The second way is to replace the DXE with an open source driver.
-This is less desirable, as the DXE environment is not as
-hardened as the Linux kernel environment.</li>
-<li>The final, least desired option, is to continue to use the DXE.
-This is required if the DXE contains proprietary code that
-"tweaks" chipset settings, for example, memory timing or
-other controls, and there is no chance of ever bringing
-them to open source.</li>
-</ol>
-<img src="../images/Case-study-step4.svg" width=600px>
-<p>Step 5. Replace closed source DXEs with open source</p>
-<p>If we can build a DXE from source, we can use <code>utk</code> to:</p>
+<li><a href="#Quick-Start">Quick Start</a></li>
+<li><a href="#Details">Details</a>
 <ul>
-<li>Remove the proprietary one</li>
-<li>Replace it with one built from source</li>
+<li><a href="#How-to-build">How to build</a></li>
+<li><a href="#How-to-operate">How to operate</a></li>
+<li><a href="#Platform-info">Platform info</a></li>
 </ul>
-<img src="../images/Case-study-step5.svg" width=600px>
-<p>Step 6. Next steps: complete LinuxBoot</p>
-<p>LinuxBoot is currently in production, but the LinuxBoot project
-development continues to provide an open-source solution that
-does the following:</p>
-<ol>
-<li>Brings up the Linux kernel as a DXE in flash ROM instead of the UEFI shell.</li>
-<li>Provides a Go based user-space that can then bring up the kernel that you
-want to run on the machine.</li>
-<li>Enables writing traditional firmware applications such as bootloader,
-debugging, diagnosis, and error detection applications as cross-architecture
-and cross-platform portable Linux applications.</li>
-</ol>
-<p>The complete LinuxBoot solution is shown in the following diagram.</p>
-<img src="../images/Case-study-step6.svg" width=600px>
+</li>
+<li><a href="#Support">Support</a>
+<ul>
+<li><a href="#Hardware-support">Hardware support</a></li>
+<li><a href="#Community-support">Community support</a></li>
+<li><a href="#Professional-support">Professional support</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
+<ul>
+<li>
+<p><a href="http://www.wiwynn.com/english">Order the hardware</a> if you have not done so.</p>
+</li>
+<li>
+<p>Download or build the firmware binary. The current solution is to boot embedded Linux kernel and initramfs as UEFI payload. Please contact Wiwynn to get a UEFI binary after ordering.</p>
+</li>
+<li>
+<p>Flash the firmware.</p>
+<ul>
+<li>Copy the downloaded firmware to OpenBMC.</li>
+<li>From OpenBMC
+<pre><code>  fw-util mb --update bios --force ./&lt;firmware image name&gt;
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>Boot and enjoy.</p>
+<ul>
+<li>From OpenBMC
+<pre><code>  power-util mb reset
+  sol-util mb
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="details"><a class="header" href="#details">Details</a></h2>
+<h3 id="how-to-build"><a class="header" href="#how-to-build">How to build</a></h3>
+<p>Follow <a href="#Build-Details">Build Details</a> for details on how to get the source code, and how to build.</p>
+<p>Boot flow of the current firmware solution is: Power on → minimized UEFI → LinuxBoot → target OS.</p>
+<p>In near feature, the boot flow will be: power on → Coreboot → LinuxBoot → target OS.</p>
+<h4 id="build-details"><a class="header" href="#build-details">Build Details</a></h4>
+<ul>
+<li>
+<p>Download the code from <a href="https://github.com/linuxboot/linuxboot">linuxboot github</a></p>
+<pre><code>  git clone https://github.com/linuxboot/linuxboot.git
+</code></pre>
+</li>
+<li>
+<p>You need to apply Wiwiynn's linuxboot patch for now</p>
+<pre><code>cd linuxboot
+wget -O TiogaPass.patch https://github.com/johnnylinwiwynn/linuxboot/commit/28ae8450b3b05c6e6b8c74e29d0974ccf711d5e6.patch
+git am TiogaPass.patch
+</code></pre>
+</li>
+<li>
+<p>Build the kernel bzImage (has embedded initramfs) for linuxboot, please reference <a href="https://github.com/linuxboot/book/tree/master/coreboot.u-root.systemboot#building-u-root">Building u-root</a> and <a href="https://github.com/linuxboot/book/tree/master/coreboot.u-root.systemboot#building-a-suitable-linux-kernel">Building a suitable Linux kernel</a> for how to build the bzImage. You can always customize your Linux kernel configuration to suit your needs, please reference Wiwynn's kernel configuration file as a sample <a href="linux_config">linux_config</a>.</p>
+</li>
+<li>
+<p>Place the tioga.rom into linuxboot/boards/tioga which is provided from Wiwynn after ordering, and also put your bzImage to the root folder of linuxboot, and then make</p>
+<pre><code>  cp path/to/tioga.rom linuxboot/boards/tioga
+  cp path/to/bzImage linuxboot
+  cd linuxboot
+  BOARD=tioga make
+</code></pre>
+</li>
+<li>
+<p>You should see the built image at build/tioga/linuxboot.rom.</p>
+</li>
+</ul>
+<h3 id="how-to-operate"><a class="header" href="#how-to-operate">How to operate</a></h3>
+<p>Follow <strong>TBD section</strong> for details on:</p>
+<ul>
+<li>How to flash. The image can be flashed either out-of-band, or from LinuxBoot u-root shell, or from targetOS shell.</li>
+<li>How to run LinuxBoot u-root shell commands.</li>
+</ul>
+<h3 id="platform-info"><a class="header" href="#platform-info">Platform info</a></h3>
+<p>The SKU contains TiogaPass board, a debug card, a VGA card, a power adapter. The details can be obtained from the <a href="http://www.wiwynn.com/english">Wiwynn Corporation</a>.</p>
+<p>Platform design details (including the design spec and schematics) can be found on the <a href="https://www.opencompute.org/products/108/wiwynn-tioga-pass-standard-sv7220g3-s-2u-ocp-server-up-to-768gb-8gb16gb32gb-ddr4-up-to-2666mts-12-dimm-slots">Open Compute Project UfiSpace product page</a>.</p>
+<h2 id="support"><a class="header" href="#support">Support</a></h2>
+<h3 id="hardware-support"><a class="header" href="#hardware-support">Hardware support</a></h3>
+<p>Hardware support can be obtained from <a href="http://www.wiwynn.com/english">Wiwynn Corporation</a>.</p>
+<h3 id="community-support"><a class="header" href="#community-support">Community support</a></h3>
+<p><a href="https://www.opencompute.org/projects/open-system-firmware">OCP Open System Firmware</a> is where industry collaborates on how to move forward with OSF. The OCP OSF project has regular recorded meetings and a mailing list.</p>
+<p><a href="https://www.linuxboot.org/">LinuxBoot open source community</a> is the community you can ask any technical questions. LinuxBoot community has a slack channel, a IRC channel, a mailing list and regular meetings.</p>
+<h3 id="professional-support"><a class="header" href="#professional-support">Professional support</a></h3>
+<p>Following companies provides professional support services:</p>
+<p>** TBD **</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../case_studies/Ampere_study.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../case_studies/Google_study.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../case_studies/TiogaPass.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../faq.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -312,11 +284,11 @@ and cross-platform portable Linux applications.</li>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../case_studies/Ampere_study.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../case_studies/Google_study.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../case_studies/TiogaPass.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../faq.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
